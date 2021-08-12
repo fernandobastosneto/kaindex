@@ -1,0 +1,149 @@
+﻿"posto","grupo","chefe","mc","c_sec","no_pais"
+"E Abidjã","D","1","1","1",NA
+"E Abu Dhabi","C","1","1","2",NA
+"E Abuja","D","1","1","3",NA
+"E Acra","D","1","1","2",NA
+"E Adis Abeba","D","1","1","3",NA
+"E Amã","C","1","1","2",NA
+"E Ancara","C","1","1","4",NA
+"E Argel","C","1","1","2",NA
+"E Assunção","B","1","2","8",NA
+"E Astana","C","1","1","2",NA
+"E Atenas","A","1","1","2",NA
+"E Bagdá","D","1","1","1",NA
+"E Baku","C","1","1","1",NA
+"E Bamako","D","1","1/0 *","0/1 *",NA
+"E Bangkok","C","1","1","2",NA
+"E Beirute","C","1","1","4",NA
+"E Belgrado","C","1","1","2",NA
+"E Belmopan","D","1","1/0 *","0/1 *",NA
+"E Berlim","A","1","2","11",NA
+"E Berna","A","1","1","2",NA
+"E Bissau","D","1","1","1",NA
+"E Bogotá","B","1","1","9",NA
+"E Bratislava","B","1","1","1",NA
+"E Brazzaville","D","1","1/0 *","0/1 *",NA
+"E Bridgetown","C","1","1/0 *","0/1 *",NA
+"E Bruxelas","A","1","1","3",NA
+"E Bucareste","C","1","1","2",NA
+"E Budapeste","B","1","1","2",NA
+"E Buenos Aires","A","1","3","17",NA
+"E Cairo","C","1","1","4",NA
+"E Camberra","B","1","1","3",NA
+"E Caracas","D","0","0","0",NA
+"E Cartum","D","1","1","1",NA
+"E Castries","C","1","1/0 *","0/1 *",NA
+"E Colombo","D","1","1","1",NA
+"E Conacri","D","1","1/0 *","0/1 *",NA
+"E Copenhague","A","1","1","2",NA
+"E Cotonou","D","1","1/0 *","0/1 *",NA
+"E Daca","D","1","1","1",NA
+"E Dacar","D","1","1","1",NA
+"E Damasco","D","1","1","2",NA
+"E Dar es Salaam","D","1","1","1",NA
+"E Díli","D","1","1","1",NA
+"E Doha","C","1","1","2",NA
+"E Dublin","A","1","1","2",NA
+"E Estocolmo","A","1","1","2",NA
+"E Gaborone","D","1","1/0 *","0/1 *",NA
+"E Georgetown","D","1","1","2",NA
+"E Guatemala","C","1","1","2",NA
+"E Haia","A","1","1","5",NA
+"E Hanói","C","1","1","2",NA
+"E Harare","D","1","1","1",NA
+"E Havana","C","1","1","3",NA
+"E Helsinque","B","1","1","2",NA
+"E Iaundê","D","1","1","1",NA
+"E Ierevan","C","1","1","1",NA
+"E Islamabade","D","1","1","2",NA
+"E Jacarta","D","1","1","4",NA
+"E Katmandu","D","1","1","1",NA
+"E Kiev","C","1","1","2",NA
+"E Kingston","C","1","1","1",NA
+"E Kinshasa","D","1","1","1",NA
+"E Kuala Lumpur","C","1","1","2",NA
+"E Kuwait","C","1","1","2",NA
+"E La Paz","C","1","1","9",NA
+"E Libreville","D","1","1/0 *","0/1 *",NA
+"E Lilongwe","D","1","1/0 *","0/1 *",NA
+"E Lima","B","1","1","9",NA
+"E Lisboa","A","1","2","8",NA
+"E Liubliana","B","1","1","1",NA
+"E Lomé","D","1","1/0 *","0/1 *",NA
+"E Londres","A","1","2","11",NA
+"E Luanda","D","1","1","5",NA
+"E Lusaca","D","1","1","1",NA
+"E Madri","A","1","2","8",NA
+"E Malabo","D","1","1/0 *","0/1 *",NA
+"E Manágua","D","1","1","2",NA
+"E Manila","D","1","1","2",NA
+"E Maputo","D","1","1","5",NA
+"E Mascate","C","1","1","1",NA
+"E México","B","1","2","10",NA
+"E Minsk","C","1","1","1",NA
+"E Montevidéu","B","1","2","8",NA
+"E Moscou","C","1","2","8",NA
+"E Nairóbi","D","1","1","3",NA
+"E Nassau","C","1","1/0 *","0/1 *",NA
+"E Nicósia","C","1","1","1",NA
+"E Nouakchott","D","1","1/0 *","0/1 *",NA
+"E Nova Delhi","C","1","2","9",NA
+"E Oslo","B","1","1","2",NA
+"E Ottawa","B","1","1","3",NA
+"E Panamá","B","1","1","2",NA
+"E Paramaribo","D","1","1","2",NA
+"E Paris","A","1","3","11",NA
+"E Paris (OCDE)","A","1","1","4",NA
+"E Pequim","C","1","2","16",NA
+"E Port of Spain","C","1","1","1",NA
+"E Porto Príncipe","D","1","1","4",NA
+"E Praga","B","1","1","2",NA
+"E Praia","D","1","1","2",NA
+"E Pretória","C","1","2","7",NA
+"E Pyongyang","D","1","1/0 *","0/1 *",NA
+"E Quito","C","1","1","9",NA
+"E Rabat","C","1","1","2",NA
+"E Riade","C","1","1","3",NA
+"E Roma","A","1","2","8",NA
+"E Santa Sé","A","1","1","2",NA
+"E Santiago","B","1","1","8",NA
+"E São Domingos","C","1","1","2",NA
+"E São José","B","1","1","2",NA
+"E São Salvador","C","1","1","2",NA
+"E São Tomé","D","1","1","1",NA
+"E Sarajevo","C","1","1","1",NA
+"E Seul","C","1","1","5",NA
+"E Singapura","B","1","1","2",NA
+"E Sófia","C","1","1","2",NA
+"E Talin","B","1","1","1",NA
+"E Tbilisi","C","1","1","1",NA
+"E Teerã","C","1","1","5",NA
+"E Tegucigalpa","D","1","1","2",NA
+"E Tel Aviv","C","1","1","5",NA
+"E Tirana","C","1","1","1",NA
+"E Tóquio","B","1","1","10",NA
+"E Túnis","C","1","1","2",NA
+"E Uagadugu","D","1","1/0 *","0/1 *",NA
+"E Varsóvia","B","1","1","3",NA
+"E Viena","A","1","1","5",NA
+"E Washington","A","1","3","17",NA
+"E Wellington","B","1","1","1",NA
+"E Windhoek","D","1","1","1",NA
+"E Yangon","D","1","1","1",NA
+"E Zagreb","C","1","1","2",NA
+"EC Taipé","C","1","0","1",NA
+"EF Nova York","A","1","1","3",NA
+"ER Ramala","D","1","1","3",NA
+"M Bruxelas","A","1","2","9",NA
+"M Genebra","A","1 + 1","2","13",NA
+"M Genebra (Desarmamento)","A","1","1","1",NA
+"M Genebra-OMC","A","1","2","14",NA
+"M Lisboa","A","1","1","2",NA
+"M Londres","A","1","1","1",NA
+"M Montevidéu","B","1","1","4",NA
+"M Montreal","B","1","1","3",NA
+"M Nova York","A","1 + 1","3","19 + 4 **",NA
+"M Paris","A","1","1","4",NA
+"M Roma","A","1","1","4",NA
+"M Viena","A","1","1","2",NA
+"M Washington","A","1","1","7",NA

@@ -133,57 +133,102 @@ tabela %>%
 
 \newpage
 
-<!-- ## Comércio Intraindustria -->
+## Comércio Intraindustria
 
-<!-- ```{r} -->
-<!-- intraindustria <- readRDS(here::here("data/dados_comerciointraindustria.rds")) -->
 
-<!-- fun_intraindustria <- function(pais) { -->
+```{r}
+intraindustria <- readRDS(here::here("data/dados_comerciointraindustria.rds"))
 
-<!--   intra <- intraindustria %>% -->
-<!--   mutate(CO_SH2 = as.integer(CO_SH2)) %>% -->
-<!--   mutate(fator = case_when(CO_SH2 > 15 & CO_SH2 < 68 ~ "Produto Industrializado", -->
-<!--                            CO_SH2 > 71 & CO_SH2 < 90 ~ "Produto Industrializado", -->
-<!--                            TRUE ~ "Outro")) %>% -->
-<!--   filter(fator == "Produto Industrializado") %>% -->
-<!--   filter(CO_ANO >1996) %>%  -->
-<!--   filter(NO_PAIS == pais) %>% -->
-<!--   group_by(CO_ANO, trade_flow, CO_SH2) %>%  -->
-<!--   summarise(value = sum(value)) %>%  -->
-<!--   ungroup() %>%  -->
-<!--   pivot_wider(names_from = trade_flow, values_from = value, values_fill = 0) %>%  -->
-<!--   mutate(soma = exp + imp, -->
-<!--          modulo = abs(exp - imp)) %>%  -->
-<!--   group_by(CO_ANO) %>% -->
-<!--   summarise(indiceGL = 1 - (sum(modulo)/sum(soma))) %>%  -->
-<!--     #adicionando média móvel -->
-<!--   mutate(lag1 = lag(indiceGL,), -->
-<!--          lag2 = lag(indiceGL, 2), -->
-<!--          lag3 = lag(indiceGL, 3), -->
-<!--          lag4 = lag(indiceGL, 4),  -->
-<!--          lag5 = lag(indiceGL, 5), -->
-<!--          mediamovel = (lag1+lag2+lag3+lag4+lag5)/5) %>% -->
-<!--   mutate(ma2= data.table::frollapply(indiceGL, 5, mean, align = "right", fill = NA)) -->
+intraindustria_dados <- intraindustria %>%
+  mutate(CO_SH2 = as.integer(CO_SH2)) %>%
+  mutate(fator = case_when(CO_SH2 > 15 & CO_SH2 < 68 ~ "Produto Industrializado",
+                           CO_SH2 > 71 & CO_SH2 < 90 ~ "Produto Industrializado",
+                           TRUE ~ "Outro")) %>%
+  filter(fator == "Produto Industrializado") %>%
+  group_by(CO_ANO, trade_flow, CO_SH2) %>% 
+  summarise(value = sum(value)) %>%
+  ungroup() %>% 
+  pivot_wider(names_from = trade_flow, values_from = value, values_fill = 0) %>% 
+  mutate(soma = exp + imp,
+         modulo = abs(exp - imp)) %>% 
+  group_by(CO_ANO) %>%
+  summarise(indiceGL = 1 - (sum(modulo)/sum(soma))) %>%
+  #adicionando média móvel
+  mutate(lag1 = lag(indiceGL,),
+         lag2 = lag(indiceGL, 2),
+         lag3 = lag(indiceGL, 3),
+         lag4 = lag(indiceGL, 4), 
+         lag5 = lag(indiceGL, 5),
+         mediamovel = (lag1+lag2+lag3+lag4+lag5)/5) %>%
+  mutate(ma2= data.table::frollapply(indiceGL, 5, mean, align = "right", fill = NA))
 
-<!--   intra %>%  -->
-<!--     filter(CO_ANO == max(CO_ANO)) %>% -->
-<!--     select(ma2) %>%  -->
-<!--     mutate(no_pais = pais) -->
-<!-- } -->
+intraindustria_dados %>% 
+  ggplot() +
+  geom_line(aes(CO_ANO, indiceGL, color = "Índice GL")) +
+  geom_line(aes(CO_ANO, ma2, color = "Média Móvel - 5 anos")) +
+  scale_x_continuous(breaks = scales::breaks_pretty(n = 10)) +
+  scale_y_continuous(breaks = scales::breaks_pretty(n = 10),
+                     limits = c(0.3, 0.6)) +
+                     # limits = c(0.4, 0.6)) +
+  labs(title = "Índice do Comércio Intraindústria",
+       subtitle = "Produtos industrializados",
+       caption = "Formulação: Ministério das Relações Exteriores, Fonte: Ministério da Economia",
+       x = NULL, y = NULL)  +
+  theme_minimal()
 
-<!-- fun_intraindustria("Alemanha") -->
+```
 
-<!-- # intra %>% -->
-<!-- #   ggplot() + -->
-<!-- #   geom_line(aes(CO_ANO, indiceGL)) + -->
-<!-- #   scale_x_continuous(breaks = scales::breaks_pretty(n = 15)) + -->
-<!-- #   scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) + -->
-<!-- #                      # limits = c(0.4, 0.6)) + -->
-<!-- #   labs(title = "Índice do Comércio Intraindústria", -->
-<!-- #        subtitle = "Produtos industrializados", -->
-<!-- #        caption = "Formulação: Ministério das Relações Exteriores, Fonte: Ministério da Economia", -->
-<!-- #        x = NULL, y = NULL)  -->
-<!-- ``` -->
+
+```{r}
+
+# Função para identificar o índice intraindustria por país
+
+fun_intraindustria <- function(pais) {
+
+  intra <- intraindustria %>%
+    mutate(CO_SH2 = as.integer(CO_SH2)) %>%
+    mutate(fator = case_when(CO_SH2 > 15 & CO_SH2 < 68 ~ "Produto Industrializado",
+                           CO_SH2 > 71 & CO_SH2 < 90 ~ "Produto Industrializado",
+                           TRUE ~ "Outro")) %>%
+    filter(fator == "Produto Industrializado") %>%
+    filter(CO_ANO >1996) %>%
+    filter(NO_PAIS == pais) %>%
+    group_by(CO_ANO, trade_flow, CO_SH2) %>%
+    summarise(value = sum(value)) %>%
+    ungroup() %>%
+    pivot_wider(names_from = trade_flow, values_from = value, values_fill = 0) %>%
+    mutate(soma = exp + imp,
+           modulo = abs(exp - imp)) %>%
+    group_by(CO_ANO) %>%
+    summarise(indiceGL = 1 - (sum(modulo)/sum(soma))) %>%
+      #adicionando média móvel
+    mutate(lag1 = lag(indiceGL,),
+           lag2 = lag(indiceGL, 2),
+           lag3 = lag(indiceGL, 3),
+           lag4 = lag(indiceGL, 4),
+           lag5 = lag(indiceGL, 5),
+           mediamovel = (lag1+lag2+lag3+lag4+lag5)/5) %>%
+    mutate(ma2= data.table::frollapply(indiceGL, 5, mean, align = "right", fill = NA))
+
+  intra %>%
+    filter(CO_ANO == max(CO_ANO)) %>%
+    select(ma2) %>%
+    mutate(no_pais = pais)
+}
+
+# fun_intraindustria("Alemanha")
+# 
+# intra %>%
+#   ggplot() +
+#   geom_line(aes(CO_ANO, indiceGL)) +
+#   scale_x_continuous(breaks = scales::breaks_pretty(n = 15)) +
+#   scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) +
+#                      # limits = c(0.4, 0.6)) +
+#   labs(title = "Índice do Comércio Intraindústria",
+#        subtitle = "Produtos industrializados",
+#        caption = "Formulação: Ministério das Relações Exteriores, Fonte: Ministério da Economia",
+#        x = NULL, y = NULL)
+```
 
 
 ## Tecnologia
@@ -496,6 +541,9 @@ indices %>%
   kableExtra::add_header_above(c("Índices Provisórios" = 7)) %>% 
   kableExtra::footnote("", general_title = "Formulação: Ministério das Relações Exteriores ") %>% 
   kableExtra::footnote(alphabet = "Tabela ordenada pelo índice icitp")
+
+
+# write_rds(indices, here::here("data/kaindex.rds"))
 
 ```
 
