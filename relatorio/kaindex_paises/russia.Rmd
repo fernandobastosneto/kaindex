@@ -1,0 +1,260 @@
+---
+imagem: "![](logo-palacio.jpg){width=3in}"
+title: "Análise de Indicadores Econômico-Sociais"
+subtitle: "Rússia"
+author: "Ministério das Relações Exteriores"
+date: "Junho de 2021"
+output:
+  pagedown::html_paged:
+    template: template.html
+    toc: true
+    number_sections: false
+    css:
+      - tese.css
+organization: Ministério das Relações Exteriores
+toc-title: Índice
+paged-footnotes: true
+knit: pagedown::chrome_print
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = F}
+library(patchwork)
+library(tidyverse)
+library(ggtext)
+source(here::here("base_de_dados.R"))
+
+knitr::opts_chunk$set(warning = F, message = F, echo = F)
+  
+```
+\newpage
+
+## Comércio
+
+```{r, fig.height=3.1}
+exportacoes <- exp_participacao %>% 
+  arrange(desc(exportacoes)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  mutate(no_pais = case_when(str_detect(no_pais, "Rússia") ~ "**Rússia**",
+                             TRUE ~ no_pais)) %>% 
+  mutate(no_pais = fct_reorder(no_pais, porcentagem_exportacoes)) %>% 
+  ggplot() +
+  geom_point(aes(no_pais, porcentagem_exportacoes, size = exportacoes, color = exportacoes), show.legend = F) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1)) +
+  labs(x = NULL, y = NULL, title = "Exportações em 2020") +
+  theme(axis.text.y = element_markdown(color = "black"))
+
+importacoes <- imp_participacao %>% 
+  arrange(desc(importacoes)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  mutate(no_pais = case_when(str_detect(no_pais, "Rússia") ~ "**Rússia**",
+                             TRUE ~ no_pais)) %>% 
+  mutate(no_pais = fct_reorder(no_pais, porcentagem_importacoes)) %>% 
+  ggplot() +
+  geom_point(aes(no_pais, porcentagem_importacoes, size = importacoes, color = importacoes), show.legend = F) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1),
+                     limits = c(0, 0.33)) +
+  labs(x = NULL, y = NULL, title = "Importações em 2020",
+       caption = "Fonte: Ministério da Economia") +
+  theme(axis.text.y = element_markdown(color = "black"))
+
+exportacoes + importacoes
+
+```
+
+```{r}
+exp_tabela <- exp_participacao %>% 
+  arrange(desc(exportacoes)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  mutate(across(exportacoes, scales::label_number_si(accuracy = 0.1))) %>% 
+  mutate(across(starts_with("porcentagem"), scales::percent_format(accuracy = 0.1))) %>% 
+  mutate(`Pos.` = row_number()) %>% 
+  relocate(`Pos.`, .before = no_pais) %>% 
+  rename(País = "no_pais",
+         Exp = exportacoes,
+         `%` = porcentagem_exportacoes) %>% 
+  gt::gt() %>% 
+    gt::tab_options(table.font.names = "Modern Computer") %>% 
+    gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+  ) 
+  # gt::fmt_markdown(columns = T) %>% 
+  # gt::as_raw_html()
+
+imp_tabela <- imp_participacao %>% 
+  arrange(desc(importacoes)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 21 | no_pais == "Rússia") %>% 
+  mutate(across(importacoes, scales::label_number_si(accuracy = 0.1))) %>% 
+  mutate(across(starts_with("porcentagem"), scales::percent_format(accuracy = 0.1))) %>% 
+  mutate(`Pos.` = row_number()) %>% 
+  relocate(`Pos.`, .before = no_pais) %>% 
+  rename(País = "no_pais",
+         Imp = importacoes,
+         `%` = porcentagem_importacoes) %>% 
+  gt::gt() %>% 
+  gt::tab_options(table.font.names = "Modern Computer") %>% 
+    gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+  ) 
+  # gt::fmt_markdown(columns = T) %>% 
+  # gt::as_raw_html()
+
+
+tabela <- data.frame(exp = exp_tabela,
+           imp = imp_tabela)
+tabela %>% 
+  gt::gt() %>% 
+  # gt::as_raw_html() %>% 
+  # gt::fmt_markdown(columns = T) %>%
+  # gt::cols_label(exp = "Exportações",
+  #                imp = "Importações") %>% 
+  gt::tab_header(title = gt::md("*Dados de Comércio em 2020*")) %>%
+  gt::tab_source_note("Fonte: Ministério da Economia") %>% 
+  gt::tab_options(table.font.names = "Modern Computer") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+  ) 
+
+  # gt::tab_options(table.font.size = "middle")
+
+```
+
+
+
+\newpage
+
+## Tecnologia
+
+### Patentes
+
+```{r, fig.height=3.5}
+patentes %>% 
+  arrange(desc(patentes)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  mutate(no_pais = case_when(str_detect(no_pais, "Rússia") ~ "**Rússia**",
+                             TRUE ~ no_pais)) %>% 
+  mutate(no_pais = fct_reorder(no_pais, patentes)) %>% 
+  ggplot() +
+  geom_point(aes(no_pais, porcentagem_patentes, size = patentes, color = patentes), show.legend = F) +
+  coord_flip() +
+  labs(x = NULL, y = NULL, title = "Patentes de Invenção (PI), por país",
+       caption = "Fonte: INPI") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1)) +
+  theme(axis.text.y = element_markdown(color = "black"))
+  
+```
+
+```{r}
+patentes %>% 
+  arrange(desc(patentes)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  rename(País = no_pais, Patentes = patentes, `%` = porcentagem_patentes) %>%
+  mutate(across(`%`, scales::label_percent(accuracy = 1))) %>% 
+  gt::gt() %>% 
+  gt::tab_header(title = "Patentes de Invenção (PI)") %>% 
+  gt::tab_source_note("Fonte: INPI") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+)
+
+```
+
+### Bolsistas brasileiros no exterior
+
+```{r, fig.height=3.5}
+bolsas %>% 
+  arrange(desc(bolsas)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  mutate(no_pais = case_when(str_detect(no_pais, "Rússia") ~ "**Rússia**",
+                             TRUE ~ no_pais)) %>% 
+  mutate(no_pais = fct_reorder(no_pais, bolsas)) %>% 
+  ggplot() +
+  geom_point(aes(porcentagem_bolsas, no_pais, size = bolsas, color = bolsas),
+             show.legend = F) +
+  scale_x_continuous(labels = scales::label_percent()) +
+  labs(x = NULL, y = NULL, 
+       title = "Porcentagem de bolsistas da CAPES e CNPQ no exterior",
+       caption = "Fonte: CAPES e CNPQ") +
+  theme(axis.text.y = element_markdown(color = "black"))
+
+```
+
+```{r}
+bolsas %>% 
+  arrange(desc(bolsas)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  rename(País = no_pais, Bolsas = bolsas, `%` = porcentagem_bolsas) %>%
+  mutate(across(`%`, scales::label_percent(accuracy = 1))) %>% 
+  gt::gt() %>% 
+  gt::tab_header(title = "Bolsas de Doutorado da CAPES e CNPQ no Exterior") %>% 
+  gt::tab_source_note("Fonte: CAPES e CNPQ") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+)
+
+```
+
+
+## Investimentos
+
+### Dados de Estoque, por controlador final
+
+```{r, fig.height=3.5}
+controlador_final_investimentos %>% 
+  select(no_pais, investimentos_controladorfinal, porcentagem_inv_controladorfinal) %>% 
+  arrange(desc(investimentos_controladorfinal)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  mutate(no_pais = case_when(str_detect(no_pais, "Rússia") ~ "**Rússia**",
+                             TRUE ~ no_pais)) %>% 
+  mutate(no_pais = fct_reorder(no_pais, investimentos_controladorfinal)) %>% 
+  ggplot() +
+  geom_point(aes(porcentagem_inv_controladorfinal, no_pais, color = investimentos_controladorfinal, size = investimentos_controladorfinal), show.legend = F) +
+  labs(x = NULL, y = NULL,
+       title = "Fluxo de Investimentos, por controlador final, em 2019",
+       caption = "Fonte: Banco Central") +
+  scale_x_continuous(labels = scales::label_percent()) +
+  theme(axis.text.y = element_markdown(color = "black"))
+
+```
+
+```{r}
+controlador_final_investimentos %>% 
+  select(no_pais, investimentos_controladorfinal, porcentagem_inv_controladorfinal) %>% 
+  arrange(desc(investimentos_controladorfinal)) %>% 
+  mutate(rank = row_number()) %>% 
+  filter(rank < 20 | no_pais == "Rússia") %>% 
+  rename(País = no_pais, Investimentos = investimentos_controladorfinal, `%` = porcentagem_inv_controladorfinal) %>%
+  mutate(across(`%`, scales::label_percent(accuracy = 1))) %>% 
+  mutate(across(Investimentos, scales::label_number_si(accuracy = 1))) %>% 
+  gt::gt() %>% 
+  gt::tab_header(title = "Dados de Investimentos, critério do controlador final") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+) %>% 
+  gt::tab_source_note("Fonte: Banco Central")
+
+```

@@ -1,0 +1,19 @@
+\contentsline {section}{Resumo}{2}{section*.2}%
+\contentsline {section}{Dados}{2}{section*.3}%
+\contentsline {subsection}{Comércio}{2}{section*.4}%
+\contentsline {subsection}{Tecnologia}{2}{section*.5}%
+\contentsline {subsubsection}{Patentes}{2}{section*.6}%
+\contentsline {subsubsection}{Bolsistas brasileiros no exterior}{2}{section*.7}%
+\contentsline {subsubsection}{Outros indicadores possíveis}{3}{section*.8}%
+\contentsline {subsection}{Investimentos}{3}{section*.9}%
+\contentsline {subsubsection}{Dados de Estoque, por controlador final}{3}{section*.10}%
+\contentsline {subsubsection}{Outros indicadores possíveis}{3}{section*.11}%
+\contentsline {paragraph}{UNCTAD - Dados de estoque de investimentos no exterior}{3}{section*.12}%
+\contentsline {paragraph}{OCDE - Dados de estoque de investimentos de países da OCDE no Brasil}{3}{section*.13}%
+\contentsline {subsection}{Emprego}{3}{section*.14}%
+\contentsline {subsection}{Financiamento}{3}{section*.15}%
+\contentsline {subsubsection}{Empréstimos diretos de longo prazo - passivos}{3}{section*.16}%
+\contentsline {subsubsection}{Outros indicadores possíveis}{3}{section*.17}%
+\contentsline {paragraph}{Participação estrangeira no capital votante de instituções do Sistema Financeiro Nacional}{3}{section*.18}%
+\contentsline {paragraph}{Endividamento em moeda estrangeira}{4}{section*.19}%
+\contentsline {section}{Resultados}{4}{section*.20}%

@@ -1,0 +1,513 @@
+---
+imagem: "![](logo-palacio.jpg){width=3in}"
+title: "Minuta de Índice de Relevância Econômica (Work in Progress)"
+author: "Ministério das Relações Exteriores"
+date: "Março de 2021"
+output:
+  pagedown::html_paged:
+    template: template.html
+    toc: true
+    number_sections: true
+    css:
+      - tese.css
+organization: Ministério das Relações Exteriores
+toc-title: Índice
+paged-footnotes: true
+knit: pagedown::chrome_print
+---
+
+```{r setup, include = F}
+library(patchwork)
+source(here::here("base_de_dados.R"))
+
+knitr::opts_chunk$set(warning = F, message = F, echo = F)
+  
+```
+\newpage
+# Resumo
+
+Foi feito primeiro estudo de relevância econômica de países a partir de dados disponíveis publicamente relacionados a comércio, tecnologia, investimentos e financiamento. A partir da padronização mais simples possível, o estudo demonstra ser possível construir índice a partir da união de diferentes bases de dados. É preciso ter cuidado, contudo, na medida em que dados heterogêneos podem apresentar corte da realidade problemático caso não sejam propriamente ponderados. A partir dos dados apresentados, proponho:
+
+1. Avaliar a conveniência dos atuais dados utilizados;
+2. Propor novos dados a serem incorporados ao estudo, inclusive critérios políticos;
+3. Encontrar modelo adequado de ponderação dos diferentes indicadores envolvidos.
+
+\newpage
+
+# Dados
+
+## Comércio
+
+Dados de comércio, segundo o [ComexStat](http://comexstat.mdic.gov.br/) do Ministério da Economia. Para fins deste estudo, optou-se por analisar a participação, por país, no total das exportações e importações brasileiras.
+
+\newpage
+
+### Dados Setoriais
+
+```{r, fig.height=2.7}
+exportacoes <- exp_participacao %>% 
+  slice_max(exportacoes, n = 20) %>% 
+  mutate(no_pais = fct_reorder(no_pais, porcentagem_exportacoes)) %>% 
+  ggplot() +
+  geom_point(aes(no_pais, porcentagem_exportacoes, size = exportacoes, color = exportacoes), show.legend = F) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1)) +
+  labs(x = NULL, y = NULL, title = "Exportações em 2020")
+
+importacoes <- imp_participacao %>% 
+  slice_max(importacoes, n = 20) %>% 
+  mutate(no_pais = fct_reorder(no_pais, porcentagem_importacoes)) %>% 
+  ggplot() +
+  geom_point(aes(no_pais, porcentagem_importacoes, size = importacoes, color = importacoes), show.legend = F) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1),
+                     limits = c(0, 0.33)) +
+  labs(x = NULL, y = NULL, title = "Importações em 2020",
+       caption = "Fonte: Ministério da Economia")
+
+
+exportacoes + importacoes
+```
+
+
+```{r}
+exp_tabela <- exp_participacao %>% 
+  slice_max(exportacoes, n = 20) %>% 
+  mutate(across(exportacoes, scales::label_number_si(accuracy = 0.1))) %>% 
+  mutate(across(starts_with("porcentagem"), scales::percent_format(accuracy = 0.1))) %>% 
+  mutate(`Pos.` = row_number()) %>% 
+  relocate(`Pos.`, .before = no_pais) %>% 
+  rename(País = "no_pais",
+         Exp = exportacoes,
+         `%` = porcentagem_exportacoes) %>% 
+  gt::gt() %>% 
+    gt::tab_options(table.font.names = "Modern Computer") %>% 
+    gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+  ) 
+  # gt::fmt_markdown(columns = T) %>% 
+  # gt::as_raw_html()
+
+imp_tabela <- imp_participacao %>% 
+  slice_max(importacoes, n = 20) %>% 
+  mutate(across(importacoes, scales::label_number_si(accuracy = 0.1))) %>% 
+  mutate(across(starts_with("porcentagem"), scales::percent_format(accuracy = 0.1))) %>% 
+  mutate(`Pos.` = row_number()) %>% 
+  relocate(`Pos.`, .before = no_pais) %>% 
+  rename(País = "no_pais",
+         Imp = importacoes,
+         `%` = porcentagem_importacoes) %>% 
+  gt::gt() %>% 
+  gt::tab_options(table.font.names = "Modern Computer") %>% 
+    gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+  ) 
+  # gt::fmt_markdown(columns = T) %>% 
+  # gt::as_raw_html()
+
+
+tabela <- data.frame(exp = exp_tabela,
+           imp = imp_tabela)
+tabela %>% 
+  gt::gt() %>% 
+  # gt::as_raw_html() %>% 
+  # gt::fmt_markdown(columns = T) %>%
+  # gt::cols_label(exp = "Exportações",
+  #                imp = "Importações") %>% 
+  gt::tab_header(title = gt::md("*Dados de Comércio em 2020*")) %>%
+  gt::tab_source_note("Fonte: Ministério da Economia") %>% 
+  gt::tab_options(table.font.names = "Modern Computer") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+  ) 
+
+  # gt::tab_options(table.font.size = "middle")
+
+```
+
+\newpage
+
+<!-- ## Comércio Intraindustria -->
+
+<!-- ```{r} -->
+<!-- intraindustria <- readRDS(here::here("data/dados_comerciointraindustria.rds")) -->
+
+<!-- fun_intraindustria <- function(pais) { -->
+
+<!--   intra <- intraindustria %>% -->
+<!--   mutate(CO_SH2 = as.integer(CO_SH2)) %>% -->
+<!--   mutate(fator = case_when(CO_SH2 > 15 & CO_SH2 < 68 ~ "Produto Industrializado", -->
+<!--                            CO_SH2 > 71 & CO_SH2 < 90 ~ "Produto Industrializado", -->
+<!--                            TRUE ~ "Outro")) %>% -->
+<!--   filter(fator == "Produto Industrializado") %>% -->
+<!--   filter(CO_ANO >1996) %>%  -->
+<!--   filter(NO_PAIS == pais) %>% -->
+<!--   group_by(CO_ANO, trade_flow, CO_SH2) %>%  -->
+<!--   summarise(value = sum(value)) %>%  -->
+<!--   ungroup() %>%  -->
+<!--   pivot_wider(names_from = trade_flow, values_from = value, values_fill = 0) %>%  -->
+<!--   mutate(soma = exp + imp, -->
+<!--          modulo = abs(exp - imp)) %>%  -->
+<!--   group_by(CO_ANO) %>% -->
+<!--   summarise(indiceGL = 1 - (sum(modulo)/sum(soma))) %>%  -->
+<!--     #adicionando média móvel -->
+<!--   mutate(lag1 = lag(indiceGL,), -->
+<!--          lag2 = lag(indiceGL, 2), -->
+<!--          lag3 = lag(indiceGL, 3), -->
+<!--          lag4 = lag(indiceGL, 4),  -->
+<!--          lag5 = lag(indiceGL, 5), -->
+<!--          mediamovel = (lag1+lag2+lag3+lag4+lag5)/5) %>% -->
+<!--   mutate(ma2= data.table::frollapply(indiceGL, 5, mean, align = "right", fill = NA)) -->
+
+<!--   intra %>%  -->
+<!--     filter(CO_ANO == max(CO_ANO)) %>% -->
+<!--     select(ma2) %>%  -->
+<!--     mutate(no_pais = pais) -->
+<!-- } -->
+
+<!-- fun_intraindustria("Alemanha") -->
+
+<!-- # intra %>% -->
+<!-- #   ggplot() + -->
+<!-- #   geom_line(aes(CO_ANO, indiceGL)) + -->
+<!-- #   scale_x_continuous(breaks = scales::breaks_pretty(n = 15)) + -->
+<!-- #   scale_y_continuous(breaks = scales::breaks_pretty(n = 10)) + -->
+<!-- #                      # limits = c(0.4, 0.6)) + -->
+<!-- #   labs(title = "Índice do Comércio Intraindústria", -->
+<!-- #        subtitle = "Produtos industrializados", -->
+<!-- #        caption = "Formulação: Ministério das Relações Exteriores, Fonte: Ministério da Economia", -->
+<!-- #        x = NULL, y = NULL)  -->
+<!-- ``` -->
+
+
+## Tecnologia
+
+### Patentes
+
+Dados do INPI.
+
+Os dados de patentes selecionados foram adquiridos no endereço eletrônico do [INPI, setor de estatísticas](https://www.gov.br/inpi/pt-br/central-de-conteudo/estatisticas), setor de "Indicadores de Propriedade Intelectual". Em breve análise, considerou-se que o indicador **Depósito de patentes tipo Patentes de Invenção, por país de origem** melhor representaria a participação estrangeira no conjunto de depósitos de patentes no Brasil.
+
+Segundo a Lei da Propriedade Industrial (Lei nº 9.279/96), tanto patentes de invenção como modelos de utilidade são protegidos por patentes. Os depósitos de patentes na modalidade de "Patentes de Invenção" (PI) representam mais de 90% dos pedidos de patentes no Brasil. O próprio [relatório do INPI](https://www.gov.br/inpi/pt-br/acesso-a-informacao/pasta-x/boletim-mensal/arquivos/documentos/indicadores-de-pi_2019.pdf) a respeito do assunto, ao analisar os pedidos de patentes feitos por não residentes, trabalha com dados na modalidade de Patentes de Invenção. Por essa razão, escolheu-se essa categoria no atual estudo.
+
+As tabelas indicam a quantidade dos pedidos de patentes de 2000 até o último ano disponível. No caso, o ano de 2019.
+
+Para fins deste estudo, considerou-se que os dados de pedidos de patente relativos ao último ano disponível pode apresentar oscilação nos dados - a depender do ano, o número de patentes solicitado pode variar de acordo com a conjuntura de curto prazo. Por isso, para evitar a variação, optou-se pela soma de todos os pedidos de patente, por país, desde o início da série temporal, no ano de 2000, até o ano de 2019. 
+
+\newpage
+
+### Dados Setoriais
+
+```{r, fig.height=3.5}
+patentes %>% 
+  slice_max(patentes, n = 20) %>% 
+  mutate(no_pais = fct_reorder(no_pais, patentes)) %>% 
+  ggplot() +
+  geom_point(aes(no_pais, porcentagem_patentes, size = patentes, color = patentes), show.legend = F) +
+  coord_flip() +
+  labs(x = NULL, y = NULL, title = "Patentes de Invenção (PI), por país",
+       caption = "Fonte: INPI") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1))
+  
+```
+
+```{r}
+patentes %>% 
+  slice_max(patentes, n = 20) %>% 
+  rename(País = no_pais, Patentes = patentes, `%` = porcentagem_patentes) %>%
+  mutate(across(`%`, scales::label_percent(accuracy = 1))) %>% 
+  gt::gt() %>% 
+  gt::tab_header(title = "Patentes de Invenção (PI)") %>% 
+  gt::tab_source_note("Fonte: INPI") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+)
+
+
+
+```
+
+### Bolsistas brasileiros no exterior
+
+Dados da CAPES e do CNPQ entre os anos de 2017 e 2019.
+
+Os dados do CNPQ foram coletados no [portal dados abertos](http://dadosabertos.cnpq.br/pt_BR/dataset?q=bolsas) da própria instituição. Os dados diziam respeito a todas as bolsas concedidas a estudantes de ensino superior no Brasil. Por isso, os dados foram devidamente filtrados para que sejam analisados apenas as bolsas de estudantes de doutorado no exterior.
+
+O mesmo procedimento foi realizado em relação aos dados da CAPES. Os dados da CAPES, contudo, foram organizados previamente pela própria instituição, tambem em seu [portal de dados abertos](https://dadosabertos.capes.gov.br/organization/11b0c6b9-fe2e-4cb1-89a1-6e481a1c7b29?res_format=CSV&groups=bolsas-ativas-em-programas-de-mobilidade-internacional&organization=bolsas-e-auxilios), agregando apenas bolsas da modalidade internacional.
+
+\newpage
+
+#### Dados Setoriais
+
+
+```{r, fig.height=3.5}
+bolsas %>% 
+  slice_max(bolsas, n = 20) %>% 
+  mutate(no_pais = fct_reorder(no_pais, bolsas)) %>% 
+  ggplot() +
+  geom_point(aes(porcentagem_bolsas, no_pais, size = bolsas, color = bolsas),
+             show.legend = F) +
+  scale_x_continuous(labels = scales::label_percent()) +
+  labs(x = NULL, y = NULL, 
+       title = "Porcentagem de bolsistas da CAPES e CNPQ no exterior",
+       caption = "Fonte: CAPES e CNPQ")
+```
+
+```{r}
+bolsas %>% 
+  slice_max(bolsas, n = 20) %>% 
+    rename(País = no_pais, Bolsas = bolsas, `%` = porcentagem_bolsas) %>%
+  mutate(across(`%`, scales::label_percent(accuracy = 1))) %>% 
+  gt::gt() %>% 
+  gt::tab_header(title = "Bolsas de Doutorado da CAPES e CNPQ no Exterior") %>% 
+  gt::tab_source_note("Fonte: CAPES e CNPQ") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+)
+
+```
+
+
+### Outros indicadores possíveis
+
+Dados da OMPI.
+
+O [Relatório anual Global Innovation Index 2020](https://www.wipo.int/edocs/pubdocs/en/wipo_pub_gii_2020.pdf), publicado pela OMPI, apresenta índice escalonando o nível de inovação, por país. Este índice pode eventualmente ser útil ao presente estudo.
+
+## Investimentos
+
+### Dados de Estoque, por controlador final
+
+[Dados do Banco Central](https://www.bcb.gov.br/content/estatisticas/Documents/Tabelas_especiais/TabelasCompletasPosicaoIDP.xlsx) a respeito da posição de investimento direto no País (IDP)^[De acordo com a nomenclatura BPM-6, adotada pelo Banco Central]. Optou-se pela discriminação do **estoque de investimentos pelo critério do controlador final**, na medida em que dados pelo critério do investidor imediato podem não representar diretamente o país de origem da empresa controladora do investimento.
+
+\newpage
+
+#### Dados Setoriais
+
+
+```{r, fig.height=3.5}
+controlador_final_investimentos %>% 
+  select(no_pais, investimentos_controladorfinal, porcentagem_inv_controladorfinal) %>% 
+  slice_max(investimentos_controladorfinal, n = 20) %>% 
+  mutate(no_pais = fct_reorder(no_pais, investimentos_controladorfinal)) %>% 
+  ggplot() +
+  geom_point(aes(porcentagem_inv_controladorfinal, no_pais, color = investimentos_controladorfinal, size = investimentos_controladorfinal), show.legend = F) +
+  labs(x = NULL, y = NULL,
+       title = "Fluxo de Investimentos, por controlador final, em 2019",
+       caption = "Fonte: Banco Central") +
+  scale_x_continuous(labels = scales::label_percent())
+```
+
+```{r}
+controlador_final_investimentos %>% 
+  select(no_pais, investimentos_controladorfinal, porcentagem_inv_controladorfinal) %>% 
+  slice_max(investimentos_controladorfinal, n = 20) %>% 
+  rename(País = no_pais, Investimentos = investimentos_controladorfinal, `%` = porcentagem_inv_controladorfinal) %>%
+  mutate(across(`%`, scales::label_percent(accuracy = 1))) %>% 
+  mutate(across(Investimentos, scales::label_number_si(accuracy = 1))) %>% 
+  gt::gt() %>% 
+  gt::tab_header(title = "Dados de Investimentos, critério do controlador final") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+) %>% 
+  gt::tab_source_note("Fonte: Banco Central")
+
+```
+
+### Outros indicadores possíveis
+
+#### UNCTAD - Dados de estoque de investimentos no exterior
+
+Dados da UNCTAD. A UNCTAD oferece, em seu [repositório de dados](https://unctadstat.unctad.org/en/BulkDownload.html), dados de fluxos e estoques, internos e externos, de Investimento Externo Direto. No [indicador a respeito de investimentos](https://unctadstat.unctad.org/7zip/US_FdiFlowsStock.csv.7z), é possível identificar a **porcentagem de estoque de investimentos no exterior do país, em relação ao estoque de investimentos mundiais**. Tal indicador pode ser útil para o estudo, na medida em que interessa ao Brasil se aproximar e manter diálogo com países com alto nível de estoque de investimentos no exterior.
+
+#### OCDE - Dados de estoque de investimentos de países da OCDE no Brasil
+
+A base de dados da OCDE permite discriminar, segundo país destino, o estoque de investimentos de cada um dos países membros da organização. No entanto, este indicador estaria disponível apenas para os membros da OCDE, excluindo países importantes, como China. Caso seja de interesse, esses dados podem ser incorporados de maneira suplementar ao estudo.
+
+## Emprego
+
+Não foram encontradas bases de dados a respeito de dados de emprego associados a investimentos estrangeiros no Brasil. As [tabelas do Banco Central](https://www.bcb.gov.br/content/estatisticas/Documents/Tabelas_especiais/TabelasCompletasPosicaoIDP.xlsx) apresentam o número de empregos criados por investimentos estrangeiros, por unidade federativa, mas não apresenta dados do país de origem dos investimentos. Como o Banco Central dispõe de dados de emprego, faz sentido supor que a associação entre emprego e investimentos, por país, seja viável. Talvez seja o caso de contato com a divisão responsável pelo setor de estatísticas do Banco Central para verificar a possibilidade de acesso a esses dados, caso eles existam.
+
+## Financiamento
+
+### Empréstimos diretos de longo prazo - passivos
+
+O [Banco Central oferece dados](https://www.bcb.gov.br/content/estatisticas/Documents/Tabelas_especiais/EmprestimosDiretosLongoPrazoPassivop.xls), discriminados por país, do fluxo de "empréstimos diretos de longo prazo passivos" associados à rubrica de "Outros Investimentos" da Conta Financeira do Balanço de Pagamentos. No estudo, optou-se por selecionar o fluxo de empréstimos no último ano disponível. Outras abordagens, como o acúmulo do fluxo de empréstimos ao longo de um conjunto de anos, também podem ser aplicadas. 
+
+\newpage
+
+#### Dados Setoriais
+
+```{r, fig.height=4}
+emprestimos %>% 
+  mutate(no_pais = fct_reorder(no_pais, financiamento)) %>%
+  ggplot() +
+  geom_point(aes(no_pais, porcentagem_financiamento, color = financiamento, size = financiamento), show.legend = F) +
+  coord_flip() +
+  scale_y_continuous(labels = scales::label_percent()) +
+  labs(x = NULL, y = NULL, title = "Empréstimos de longo prazo",
+       caption = "Fonte: Banco Central")
+```
+
+```{r, fig.height=3.5} 
+emprestimos %>% 
+  slice_max(financiamento, n = 20) %>% 
+  rename(País = no_pais, Financiamento = financiamento, `%` = porcentagem_financiamento) %>% 
+  mutate(across(`%`, scales::label_percent(accuracy = 1))) %>% 
+  mutate(Financiamento = Financiamento*1000000) %>% 
+  mutate(across(Financiamento, scales::label_number_si(accuracy = 1))) %>% 
+  gt::gt() %>% 
+  gt::tab_header(title = "Empréstimos de longo prazo") %>% 
+  gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+) %>% 
+  gt::tab_source_note("Fonte: Banco Central")
+
+```
+
+
+### Outros indicadores possíveis
+
+#### Participação estrangeira no capital votante de instituções do Sistema Financeiro Nacional
+
+O [Banco Central disponibiliza](https://www.bcb.gov.br/content/publicacoes/evolucaosfn/r202012/T4CE_Quadro%2012%20-%20Participa%C3%A7%C3%A3o%20estrangeira%20no%20capital%20votante%20de%20institui%C3%A7%C3%B5es%20do%20SFN.pdf
+) o quantitativo de empresas do sistema financeiro nacional controladas por capital estrangeiro. Apesar do BC não indicar o tamanho de tais empresas, em termos de capital, tal informação pode eventualmente ser útil caso incorporada ao estudo.
+
+#### Endividamento em moeda estrangeira
+
+O Banco Central também oferece, finalmente, a [distribuição por moeda da Dívida Externa brasileira](https://www.bcb.gov.br/content/estatisticas/Documents/Tabelas_especiais/DivMoeda_T.xlsx). Estes dados não são discriminados por país, apenas por moeda, mas podem eventualmente contribuir para o atual estudo.
+
+# Resultados
+
+Como modelo meramente incipiente, optou-se pela construção do índice a partir da participação, por país, de cada um dos indicadores selecionados. Para permitir uma base comum de comparação, os dados brutos foram transformados em porcentagem. Em vez de dados brutos de comércio, porcentagem de exportações e importações. Em vez do número de patentes, porcentagem das patentes depositadas no Brasil - e assim em diante. Foram incorporados, segundo os mesmos critérios, dados de investimentos; bolsistas de doutorado da CAPES e CNPQ no exterior; e financiamento.
+
+O resultado do estudo foi adquirido, portanto, da maneira mais simples possível: o índice foi construído a partir da soma de cada um desses indicadores. O resultado bruto não parece satisfatório: em função de suas participações nos indicadores de investimento e financiamento, as Ilhas Cayman figuram entre os cinco países mais relevantes economicamente para o Brasil. Ao excluir os paraísos fiscais, contudo, Estados Unidos, China, França e Espanha ocupam as primeiras posições. Chama atenção, no entanto, a ausência de qualquer país sul-americano entre os 10 primeiros do índice. A Argentina, no cálculo preliminar, ocupa apenas a 14ª posição.
+
+```{r, fig.height=4} 
+
+df %>% 
+  filter(no_pais != "Brasil") %>% 
+  slice_max(indice, n = 30) %>% 
+  ggplot() +
+  geom_col(aes(indice, reorder(no_pais, indice), fill = indice),
+             show.legend = F) +
+  labs(x = NULL, y = NULL,
+       title = "Rascunho de Índice de Relevância Econômica",
+       caption = "Formulação: Ministério das Relações Exteriores")
+
+```
+
+\newpage
+
+```{r}
+
+df %>% 
+  filter(no_pais != "Brasil") %>% 
+  mutate(posicao = row_number()) %>% 
+  select(posicao, no_pais, indice) %>% 
+  filter(posicao <= 20) %>% 
+  rename(Posição = posicao, País = no_pais, Índice = indice) %>% 
+  gt::gt() %>% 
+  gt::tab_header("Índice Provisório de Relevância Econômica") %>% 
+    gt::tab_options(
+    column_labels.font.size = "smaller",
+    table.font.size = "smaller",
+    data_row.padding = gt::px(3)
+)
+  # kableExtra::kbl(longtable = T, booktabs = T) %>% 
+  # kableExtra::add_header_above(c("Índice de Relevância Econômica" = 3)) %>% 
+  # kableExtra::kable_styling(full_width = F, latex_options = c("repeat_header", "scale_down"), position = "center",
+  #                           font_size = 9) %>% 
+  # kableExtra::column_spec(1, bold = T, width = "5em")
+
+```
+
+## Matriz de Correlação 
+
+```{r}
+matriz <- df %>% 
+  filter(no_pais != "Brasil") %>% 
+  select(-c(indice, no_pais, porcentagem_corrente)) %>% 
+  rename_with(~ str_remove(.x, "porcentagem_")) %>% 
+  rename(inv = inv_controladorfinal) %>% 
+  as.matrix()
+res <- cor(matriz)
+
+
+corrplot::corrplot.mixed(res, upper = "color",
+                         number.cex = .7, tl.pos = "lt",
+                         tl.col = "black", plotCI = "rect")
+
+
+```
+
+A partir da análise da matriz de correlação acima, foi proposta a criação de cinco índices:
+
+1. Índice de Comércio (IC)
+    + (Exportações +  Importações)/2
+2. Índice de Comércio e Investimentos (ICI)
+    + (IC + Investimentos)/2
+3. Índice de Investimentos e Tecnologia (ICIT)
+    + (2 * ICI + Patentes)/3
+4. Índice de Cooperação Tecnológica (ITP)
+    + (Patentes +  Bolsas)/2
+5. Índice de Investimentos e Cooperação Tecnológica
+    + (2 * ICI + ITP)/3
+
+O resultado pode ser observado na tabela a seguir.
+
+## Novo Índice
+
+```{r}
+indices <- df %>% 
+  mutate(ic = (porcentagem_exportacoes + porcentagem_importacoes)/2,
+         ici = (ic + porcentagem_inv_controladorfinal)/2,
+         icit = (2*ici + porcentagem_patentes)/3,
+         itp = (porcentagem_patentes + porcentagem_bolsas)/2,
+         icitp = (2 * ici + itp)/3) %>% 
+  select(no_pais, ic, ici, icit, itp, icitp) %>% 
+  mutate(across(starts_with("i"), ~ round(.x*100, 2)))
+
+  
+indices %>% 
+  filter(no_pais != "Brasil") %>%
+  arrange(desc(icitp)) %>% 
+  mutate(posicao = row_number()) %>% 
+  # select(posicao, no_pais, indice) %>% 
+  filter(posicao <= 40) %>% 
+  rename(Posição = posicao, País = no_pais) %>%
+  kableExtra::kbl(booktabs = T) %>% 
+  kableExtra::kable_styling(full_width = F, font_size = 15) %>%
+  kableExtra::column_spec(1, width = "30em") %>% 
+  kableExtra::add_header_above(c("Índices Provisórios" = 7)) %>% 
+  kableExtra::footnote("", general_title = "Formulação: Ministério das Relações Exteriores ") %>% 
+  kableExtra::footnote(alphabet = "Tabela ordenada pelo índice icitp")
+
+```
+
+# Próximos passos
+
+- Incorporar índice de comércio intra-indústria
+- Incorporar dados de cooperação a partir de informações da ABC
+- Zerar dados de países paraísos fiscais
+- Acrescentar deltas de países:
+    + fronteiriços, que requer ênfase em logística, aduanas e outros equipamentos públicos;
+    + membros do MERCOSUL
+    + membros do G20
+    + membros do BRICS
+    + membros da OCDE
+
